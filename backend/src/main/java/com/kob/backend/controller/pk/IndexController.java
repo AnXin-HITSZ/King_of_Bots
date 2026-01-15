@@ -9,14 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * Description:
  *
  * @Author AnXin
- * @Create 2026/1/13 11:24
+ * @Create 2026/1/15 16:05
  * @Version 1.0
  */
-
 @Controller
 public class IndexController {
 
-    @RequestMapping("/pk/index/")
+    @RequestMapping("/")
     public String index() {
         return "pk/index.html";
     }
