@@ -25,39 +25,41 @@ import java.util.Map;
 public class RegisterServiceImpl implements RegisterService {
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public Map<String, String> register(String username, String password, String confirmPassword) {
+    public Map<String, String> register(String username, String password, String confirmedPassword) {
         Map<String, String> map = new HashMap<>();
         if (username == null) {
-            map.put("error_success", "用户名不能为空");
+            map.put("error_message", "用户名不能为空");
             return map;
         }
 
-        if (password == null || confirmPassword == null) {
-            map.put("error_success", "密码不能为空");
+        if (password == null || confirmedPassword == null) {
+            map.put("error_message", "密码不能为空");
             return map;
         }
 
         username = username.trim();
         if (username.isEmpty()) {
-            map.put("error_success", "用户名不能为空");
+            map.put("error_message", "用户名不能为空");
             return map;
         }
 
         if (username.length() > 100) {
-            map.put("error_success", "用户名长度不能大于 100");
+            map.put("error_message", "用户名长度不能大于 100");
             return map;
         }
 
-        if (password.length() > 100 || confirmPassword.length() > 100) {
-            map.put("error_success", "密码长度不能大于 100");
+        if (password.length() > 100 || confirmedPassword.length() > 100) {
+            map.put("error_message", "密码长度不能大于 100");
             return map;
         }
 
-        if (!password.equals(confirmPassword)) {
-            map.put("error_success", "两次输入的密码不一致");
+        if (!password.equals(confirmedPassword)) {
+            map.put("error_message", "两次输入的密码不一致");
             return map;
         }
 
@@ -65,7 +67,7 @@ public class RegisterServiceImpl implements RegisterService {
         queryWrapper.eq("username",username);
         List<User> users = userMapper.selectList(queryWrapper);
         if (!users.isEmpty()) {
-            map.put("error_success", "用户名已存在");
+            map.put("error_message", "用户名已存在");
             return map;
         }
 
@@ -74,7 +76,7 @@ public class RegisterServiceImpl implements RegisterService {
         User user = new User(null, username, encodedPassword, photo);
         userMapper.insert(user);
 
-        map.put("error_success", "success");
+        map.put("error_message", "success");
         return map;
     }
 }
