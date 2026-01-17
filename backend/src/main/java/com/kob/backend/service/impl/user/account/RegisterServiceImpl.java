@@ -72,7 +72,7 @@ public class RegisterServiceImpl implements RegisterService {
         }
 
         String encodedPassword = passwordEncoder.encode(password);
-        String photo = "D:\\Learn\\AcWing\\SpringBoot框架课\\doc\\2_配置git环境与项目创建\\images";
+        String photo = "https://cdn.acwing.com/media/user/profile/photo/560696_lg_b0d0f4a09e.jpg";
         User user = new User(null, username, encodedPassword, photo);
         userMapper.insert(user);
 

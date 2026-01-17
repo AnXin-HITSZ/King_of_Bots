@@ -1,55 +1,42 @@
 package com.kob.backend.service.impl.bot;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.kob.backend.mapper.BotMapper;
 import com.kob.backend.pojo.Bot;
 import com.kob.backend.pojo.User;
-import com.kob.backend.service.bot.RemoveService;
+import com.kob.backend.service.bot.GetListService;
 import com.kob.backend.service.impl.utils.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
- * ClassName: RemoveServiceImpl
+ * ClassName: GetListServiceImpl
  * Package: com.kob.backend.service.impl.bot
  * Description:
  *
  * @Author AnXin
- * @Create 2026/1/16 17:05
+ * @Create 2026/1/17 16:54
  * @Version 1.0
  */
 @Service
-public class RemoveServiceImpl implements RemoveService {
+public class GetListServiceImpl implements GetListService {
     @Autowired
     private BotMapper botMapper;
 
     @Override
-    public Map<String, String> remove(Map<String, String> data) {
+    public List<Bot> getList() {
         UsernamePasswordAuthenticationToken authenticationToken =
                 (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
         User user = loginUser.getUser();
-        int bot_id = Integer.parseInt(data.get("bot_id"));
 
-        Map<String,String> map = new HashMap<>();
-        Bot bot = botMapper.selectById(bot_id);
-
-        if (bot == null) {
-            map.put("error_message", "Bot 不存在或已被删除");
-            return map;
-        }
-
-        if (!bot.getUserId().equals(user.getId())) {
-            map.put("error_message", "没有权限删除该 Bot");
-            return map;
-        }
-
-        botMapper.deleteById(bot_id);
-        map.put("error_message", "success");
-        return map;
+        QueryWrapper<Bot> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", user.getId());
+        List<Bot> list = botMapper.selectList(queryWrapper);
+        return list;
     }
 }
