@@ -1,19 +1,20 @@
 import { AcGameObject } from "./AcGameObject";
 import { Wall } from "./Wall";
-import { Snake } from "./Snake";
+import { Snake } from './Snake';
 
 export class GameMap extends AcGameObject {
-    constructor(ctx, parent) {
+    constructor(ctx, parent, store) {
         super();
 
         this.ctx = ctx;
         this.parent = parent;
+        this.store = store;
         this.L = 0;
 
         this.rows = 13;
         this.cols = 14;
-
-        this.inner_wall_count = 20;
+        
+        this.inner_walls_count = 20;
         this.walls = [];
 
         this.snakes = [
@@ -22,73 +23,16 @@ export class GameMap extends AcGameObject {
         ];
     }
 
-    check_connectivity(g, sx, sy, tx, ty) {
-        // g: 二维布尔数组，表示网格
-        //  - false: 可通行（空单元格）
-        //  - true: 不可通行（障碍物或已访问）
-        // sx, sy: 起点坐标（(start x, start y)）
-        // tx, ty: 终点坐标（(target x, target y)）
-
-        // 如果当前已经是终点，说明找到了路径，返回 true
-        if (sx == tx && sy == ty) return true;
-        g[sx][sy] = true;   // 将当前位置标记为“已访问”（true），避免重复访问
-
-        let dx = [-1, 0, 1, 0], dy = [0, 1, 0, -1]; // 分别对应方向：上、右、下、左
-        for (let i = 0; i < 4; i++) {
-            let x = sx + dx[i], y = sy + dy[i];
-            if (!g[x][y]/* 确保目标位置可以通行（false） */ && this.check_connectivity(g, x, y, tx, ty))
-                return true;
-        }
-
-        // 如果四个方向都走不通，返回 false
-        return false;
-    }
-
     create_walls() {
-        const g = [];
-        for (let r = 0; r < this.rows; r++) {
-            g[r] = [];
-            for (let c = 0; c < this.cols; c++) {
-                g[r][c] = false;
-            }
-        }
+        const g = this.store.state.pk.gamemap;
 
-        // 给四周加上障碍物
-        for (let r = 0; r < this.rows; r++) {
-            g[r][0] = g[r][this.cols - 1] = true;
-        }
-
-        for (let c = 0; c < this.cols; c++) {
-            g[0][c] = g[this.rows - 1][c] = true;
-        }
-
-        // 创造随机障碍物
-        for (let i = 0; i < this.inner_wall_count / 2; i++) {
-            for (let j = 0; j < 1000; j++) {
-                let r = parseInt(Math.random() * this.rows);
-                let c = parseInt(Math.random() * this.cols);
-                if (g[r][c] || g[c][r]) continue;
-                if (r == this.rows - 2 && c == 1 || r == 1 && c == this.cols - 2)
-                    continue;
-
-                g[r][c] = g[this.rows - 1 - r][this.cols - 1 - c] = true;
-                break;
-            }
-        }
-
-        const copy_g = JSON.parse(JSON.stringify(g));
-        if (!this.check_connectivity(copy_g, this.rows - 2, 1, 1, this.cols - 2))
-            return false;
-
-        for (let r = 0; r < this.rows; r++) {
-            for (let c = 0; c < this.cols; c++) {
+        for (let r = 0; r < this.rows; r ++ ) {
+            for (let c = 0; c < this.cols; c ++ ) {
                 if (g[r][c]) {
                     this.walls.push(new Wall(r, c, this));
                 }
             }
         }
-
-        return true;
     }
 
     add_listening_events() {
@@ -108,11 +52,8 @@ export class GameMap extends AcGameObject {
     }
 
     start() {
-        for (let i = 0; i < 1000; i++) {
-            if (this.create_walls())
-                break;
-        }
-
+        this.create_walls();
+        
         this.add_listening_events();
     }
 
@@ -122,7 +63,7 @@ export class GameMap extends AcGameObject {
         this.ctx.canvas.height = this.L * this.rows;
     }
 
-    check_ready() { // 判断两条蛇是否都准备好下一回合了
+    check_ready() {  // 判断两条蛇是否都准备好下一回合了
         for (const snake of this.snakes) {
             if (snake.status !== "idle") return false;
             if (snake.direction === -1) return false;
@@ -130,13 +71,13 @@ export class GameMap extends AcGameObject {
         return true;
     }
 
-    next_step() {   // 让两条蛇进入下一回合
+    next_step() {  // 让两条蛇进入下一回合
         for (const snake of this.snakes) {
             snake.next_step();
         }
     }
 
-    check_valid(cell) { // 检测目标位置是否合法：没有撞到两条蛇的身体和障碍物
+    check_valid(cell) {  // 检测目标位置是否合法：没有撞到两条蛇的身体和障碍物
         for (const wall of this.walls) {
             if (wall.r === cell.r && wall.c === cell.c)
                 return false;
@@ -144,10 +85,10 @@ export class GameMap extends AcGameObject {
 
         for (const snake of this.snakes) {
             let k = snake.cells.length;
-            if (!snake.check_tail_increasing()) {   // 当蛇尾会前进的时候，蛇尾不要判断
-                k--;
+            if (!snake.check_tail_increasing()) {  // 当蛇尾会前进的时候，蛇尾不要判断
+                k -- ;
             }
-            for (let i = 0; i < k; i++) {
+            for (let i = 0; i < k; i ++ ) {
                 if (snake.cells[i].r === cell.r && snake.cells[i].c === cell.c)
                     return false;
             }
@@ -166,8 +107,8 @@ export class GameMap extends AcGameObject {
 
     render() {
         const color_even = "#AAD751", color_odd = "#A2D149";
-        for (let r = 0; r < this.rows; r++) {
-            for (let c = 0; c < this.cols; c++) {
+        for (let r = 0; r < this.rows; r ++ ) {
+            for (let c = 0; c < this.cols; c ++ ) {
                 if ((r + c) % 2 == 0) {
                     this.ctx.fillStyle = color_even;
                 } else {
