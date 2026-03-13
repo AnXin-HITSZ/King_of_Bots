@@ -37,7 +37,7 @@ public class UserController {
      * 查询单个用户
      */
     @GetMapping("/user/{userId}/")
-    public User getUser(@PathVariable Integer userId) {
+    public User getUser(@PathVariable("userId") Integer userId) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id", userId);
 
@@ -48,9 +48,9 @@ public class UserController {
      * 添加某个用户，直接输入 id、name、password
      */
     @GetMapping("/user/add/{userId}/{username}/{password}/")
-    public String addUser(@PathVariable Integer userId,
-                          @PathVariable String username,
-                          @PathVariable String password) {
+    public String addUser(@PathVariable("userId") Integer userId,
+                          @PathVariable("username") String username,
+                          @PathVariable("password") String password) {
         User user = new User(userId, username, password);
         userMapper.insert(user);
         return "Add User Successfully";
@@ -60,7 +60,7 @@ public class UserController {
      * 删除某个用户，直接输入 id
      */
     @GetMapping("/user/delete/{userId}/")
-    public String deleteUser(@PathVariable Integer userId) {
+    public String deleteUser(@PathVariable("userId") Integer userId) {
         userMapper.deleteById(userId);
         return "Delete User Successfully";
     }

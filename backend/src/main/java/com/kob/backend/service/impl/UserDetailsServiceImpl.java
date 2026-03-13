@@ -1,5 +1,10 @@
 package com.kob.backend.service.impl;
 
+import com.kob.backend.service.UserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
 /**
  * ClassName: UserDetailsServiceImpl
  * Package: com.kob.backend.service.impl
@@ -9,5 +14,10 @@ package com.kob.backend.service.impl;
  * @Create 2026/3/12 21:02
  * @Version 1.0
  */
-public class UserDetailsServiceImpl {
+@Service
+public class UserDetailsServiceImpl implements UserDetailsService {
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+    }
 }

@@ -83,6 +83,12 @@
         </dependency>
 
         <!-- 注意：不再需要显式引入 jakarta.servlet-api，因为 spring-boot-starter-web 已传递依赖 -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
